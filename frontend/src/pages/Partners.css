@@ -1,0 +1,114 @@
+.partners-page {
+  min-height: 100vh;
+  padding: 7rem 5vw 4rem;
+  max-width: 1200px; margin: 0 auto;
+}
+.partners__header {
+  margin-bottom: 2.5rem;
+}
+.partners__title {
+  font-family: var(--font-display); font-size: 4rem; line-height: 0.95;
+  margin-bottom: 0.75rem;
+}
+.partners__sub { font-size: 14px; color: var(--muted); }
+
+.partners__filters {
+  display: flex; flex-direction: column; gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.partners__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.partner-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 2rem 1.5rem;
+  text-align: center; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+  position: relative;
+}
+.partner-card:hover { border-color: var(--accent); background: var(--card-2); transform: translateY(-4px); }
+
+.partner-card__score-ring {
+  position: absolute; top: 12px; right: 12px;
+  width: 40px; height: 40px;
+}
+.score-svg { width: 40px; height: 40px; }
+.score-center {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-cond); font-size: 11px; font-weight: 700;
+  color: var(--accent);
+}
+
+.partner-card__avatar {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 24px; color: var(--black);
+  margin-bottom: 0.25rem;
+}
+
+.partner-card__name {
+  font-family: var(--font-cond); font-size: 1rem;
+  font-weight: 700; letter-spacing: 0.5px;
+}
+.partner-card__sport { font-size: 13px; color: var(--text); }
+.partner-card__meta { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.partner-card__sessions { font-size: 11px; color: var(--muted2); }
+
+.btn-connect-card {
+  width: 100%; padding: 9px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-cond); font-size: 12px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  border-radius: 6px; margin-top: 0.5rem;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.partner-card:hover .btn-connect-card {
+  border-color: var(--accent); color: var(--accent);
+}
+
+/* Partner Modal */
+.partner-modal { max-width: 460px; }
+
+.pm__head {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.pm__avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 22px; color: var(--black);
+  flex-shrink: 0;
+}
+.pm__name {
+  font-family: var(--font-cond); font-size: 1.4rem;
+  font-weight: 700; letter-spacing: 1px;
+}
+.pm__sport { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.pm__score-badge {
+  margin-left: auto;
+  font-family: var(--font-display); font-size: 1.5rem; color: var(--accent);
+}
+
+.pm__bio { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 1.25rem; }
+
+.pm__stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+}
+.pm__stat {
+  background: var(--card); padding: 1rem;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  border-right: 1px solid var(--border);
+}
+.pm__stat:last-child { border-right: none; }
+.pm__stat span { font-weight: 600; font-size: 14px; }
+.pm__stat label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }

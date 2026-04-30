@@ -1,0 +1,247 @@
+version: '3.9'
+
+# ═══════════════════════════════════════════════════════════════
+#  SportConnect — Full Stack docker-compose
+#
+#  Services:
+#    frontend          → React SPA            :80
+#    api-gateway       → Express proxy        :3000
+#    auth-service      → Node + Firebase      :3001  (Member 1)
+#    user-service      → Node + Firestore     :3002  (Member 1)
+#    session-service   → Node + MongoDB       :5002  (Member 2)
+#    matchmaking-service → Spring Boot + PG   :8083  (Member 3)
+#    performance-service → Spring Boot + PG   :8084  (Member 3)
+#    mongodb           → MongoDB              :27017
+#    postgres          → PostgreSQL           :5432
+# ═══════════════════════════════════════════════════════════════
+
+services:
+
+  # ─────────────────────────────────────────────
+  # DATABASES
+  # ─────────────────────────────────────────────
+
+  mongodb:
+    image: mongo:7
+    container_name: sportconnect-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - sportconnect-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: sportconnect-postgres
+    environment:
+      POSTGRES_DB: sportconnect
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "1234"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sportconnect-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────
+  # MEMBER 1 — Auth Service (Node.js, port 3001)
+  # ─────────────────────────────────────────────
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: sportconnect-auth
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      FIREBASE_API_KEY: ${FIREBASE_API_KEY}
+      USER_SERVICE_URL: http://user-service:3002
+    volumes:
+      # Mount the serviceAccountKey.json from the project root
+      - ./serviceAccountKey.json:/app/serviceAccountKey.json:ro
+    networks:
+      - sportconnect-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ─────────────────────────────────────────────
+  # MEMBER 1 — User Service (Node.js, port 3002)
+  # ─────────────────────────────────────────────
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: sportconnect-user
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: 3002
+    volumes:
+      - ./serviceAccountKey.json:/app/serviceAccountKey.json:ro
+    networks:
+      - sportconnect-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ─────────────────────────────────────────────
+  # MEMBER 2 — Session Service (Node.js, port 5002)
+  # ─────────────────────────────────────────────
+  session-service:
+    build:
+      context: ./session-service
+      dockerfile: Dockerfile
+    container_name: sportconnect-session
+    ports:
+      - "5002:5002"
+    environment:
+      PORT: 5002
+      MONGO_URI: mongodb://mongodb:27017/sportconnect_sessions
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - sportconnect-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5002/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ─────────────────────────────────────────────
+  # MEMBER 3 — Matchmaking Service (Spring Boot, port 8083)
+  # ─────────────────────────────────────────────
+  matchmaking-service:
+    build:
+      context: ./matchmaking-service
+      dockerfile: Dockerfile
+    container_name: sportconnect-matchmaking
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sportconnect
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      SERVER_PORT: 8083
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sportconnect-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8083/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ─────────────────────────────────────────────
+  # MEMBER 3 — Performance Service (Spring Boot, port 8084)
+  # ─────────────────────────────────────────────
+  performance-service:
+    build:
+      context: ./performance-service
+      dockerfile: Dockerfile
+    container_name: sportconnect-performance
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sportconnect
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "1234"
+      SERVER_PORT: 8084
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sportconnect-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8084/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ─────────────────────────────────────────────
+  # MEMBER 4 — API Gateway (Express proxy, port 3000)
+  # ─────────────────────────────────────────────
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: sportconnect-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      USER_SERVICE_URL: http://user-service:3002
+      SESSION_SERVICE_URL: http://session-service:5002
+      MATCH_SERVICE_URL: http://matchmaking-service:8083
+      PERF_SERVICE_URL: http://performance-service:8084
+    depends_on:
+      - auth-service
+      - user-service
+      - session-service
+      - matchmaking-service
+      - performance-service
+    networks:
+      - sportconnect-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ─────────────────────────────────────────────
+  # MEMBER 4 — Frontend (React → nginx, port 80)
+  # ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_GATEWAY_URL: http://localhost:3000/api
+    container_name: sportconnect-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - sportconnect-net
+    restart: unless-stopped
+
+# ─────────────────────────────────────────────
+# NETWORKS & VOLUMES
+# ─────────────────────────────────────────────
+networks:
+  sportconnect-net:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  postgres_data:
