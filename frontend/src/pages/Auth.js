@@ -17,7 +17,11 @@ export function Login() {
       await login(form.email, form.password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Invalid credentials. Please try again.');
+      if (!err.response) {
+        setError(`Network Error: Cannot connect to API Gateway at ${process.env.REACT_APP_API_GATEWAY_URL || 'http://localhost:3000/api'}. Check your backend server and REACT_APP_API_GATEWAY_URL setting in Vercel.`);
+      } else {
+        setError(err.response?.data?.error || 'Invalid credentials. Please try again.');
+      }
     } finally { setLoading(false); }
   };
 
@@ -67,7 +71,11 @@ export function Register() {
       await register({ ...form, localisation: finalLocalisation, sportPrefere: finalSport });
       navigate('/login');  // ← register doesn't return a token, go to login
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed. Please try again.');
+      if (!err.response) {
+        setError(`Network Error: Cannot connect to API Gateway at ${process.env.REACT_APP_API_GATEWAY_URL || 'http://localhost:3000/api'}. Check your backend server and REACT_APP_API_GATEWAY_URL setting in Vercel.`);
+      } else {
+        setError(err.response?.data?.error || 'Registration failed. Please try again.');
+      }
     } finally { setLoading(false); }
   };
 
