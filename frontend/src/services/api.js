@@ -13,6 +13,8 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem('sc_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   config.headers['Bypass-Tunnel-Remainder'] = 'true';
+  config.headers['ngrok-skip-browser-warning'] = 'true';
+  config.headers['localtunnel-bypass-api-key'] = 'true';
   return config;
 });
 
