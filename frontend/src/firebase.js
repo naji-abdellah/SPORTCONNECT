@@ -4,7 +4,7 @@ import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   projectId: "sportconnect-818cd",
-  apiKey: "AIzaSyPlaceholderKey",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyPlaceholderKey",
   authDomain: "sportconnect-818cd.firebaseapp.com",
   storageBucket: "sportconnect-818cd.appspot.com",
   messagingSenderId: "114916117615480984770",
