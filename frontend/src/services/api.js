@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API Gateway base URL - update with actual deployed URL
-const API_BASE = process.env.REACT_APP_API_GATEWAY_URL || 'http://localhost:3000/api';
+const API_BASE = process.env.REACT_APP_API_GATEWAY_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE,
