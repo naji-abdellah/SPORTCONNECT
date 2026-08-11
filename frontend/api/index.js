@@ -40,7 +40,7 @@ app.use(async (req, res, next) => {
 
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyAtwyeEZkREsUw0UMXk5vLTF6vvfhDwh5I';
 
-// ── Auth: Register (Flexible Route Matching) ──
+// ── Auth: Register ──
 app.post(['/api/auth/register', '/auth/register', '/register'], async (req, res) => {
   const { email, password, displayName } = req.body;
   if (!email || !password || !displayName) {
@@ -96,7 +96,7 @@ app.post(['/api/auth/register', '/auth/register', '/register'], async (req, res)
   }
 });
 
-// ── Auth: Login (Flexible Route Matching) ──
+// ── Auth: Login ──
 app.post(['/api/auth/login', '/auth/login', '/login'], async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -142,12 +142,10 @@ app.post(['/api/auth/login', '/auth/login', '/login'], async (req, res) => {
   }
 });
 
-// ── Health Check ──
 app.get(['/api/health', '/health', '/api'], (req, res) => {
   res.json({ status: 'OK', service: 'sportconnect-vercel-api', time: new Date().toISOString() });
 });
 
-// ── 404 Fallback ──
 app.use((req, res) => {
   res.status(404).json({ error: `Route not found: ${req.method} ${req.url}` });
 });
