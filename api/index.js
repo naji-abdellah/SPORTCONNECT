@@ -38,7 +38,7 @@ app.use(async (req, res, next) => {
   next();
 });
 
-const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyAtwyeEZkREsUw0UMXk5vLTF6vvfhDwh5I';
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyBx34ei88o-bKLYWYdTSPTAiwtdpm_NOc4';
 
 // ── Auth: Register ──
 app.post(['/api/auth/register', '/auth/register', '/register'], async (req, res) => {
