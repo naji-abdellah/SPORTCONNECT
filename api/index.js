@@ -40,8 +40,8 @@ app.use(async (req, res, next) => {
 
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyAtwyeEZkREsUw0UMXk5vLTF6vvfhDwh5I';
 
-// ── Auth: Register ──
-app.post('/api/auth/register', async (req, res) => {
+// ── Auth: Register (Flexible Route Matching) ──
+app.post(['/api/auth/register', '/auth/register', '/register'], async (req, res) => {
   const { email, password, displayName } = req.body;
   if (!email || !password || !displayName) {
     return res.status(400).json({ error: 'Les champs email, password et displayName sont obligatoires.' });
@@ -51,7 +51,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 
   try {
-    // 1. Create account via Firebase Identity Toolkit REST API
     const response = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_API_KEY}`,
       {
@@ -74,7 +73,6 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ error: data.error?.message || 'Inscription échouée.' });
     }
 
-    // 2. Set displayName
     if (displayName && data.idToken) {
       await fetch(
         `https://identitytoolkit.googleapis.com/v1/accounts:update?key=${FIREBASE_API_KEY}`,
@@ -98,8 +96,8 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// ── Auth: Login ──
-app.post('/api/auth/login', async (req, res) => {
+// ── Auth: Login (Flexible Route Matching) ──
+app.post(['/api/auth/login', '/auth/login', '/login'], async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ error: 'email et password sont obligatoires.' });
@@ -145,8 +143,13 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // ── Health Check ──
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health', '/api'], (req, res) => {
   res.json({ status: 'OK', service: 'sportconnect-vercel-api', time: new Date().toISOString() });
+});
+
+// ── 404 Fallback ──
+app.use((req, res) => {
+  res.status(404).json({ error: `Route not found: ${req.method} ${req.url}` });
 });
 
 module.exports = app;
