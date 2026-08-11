@@ -9,9 +9,82 @@ const LEVEL_FILTER = ['All', 'Beginner', 'Intermediate', 'Advanced', 'Pro', 'All
 
 const SPORT_EMOJI = { Football: '⚽', Basketball: '🏀', Tennis: '🎾', Running: '🏃', Boxing: '🥊', Swimming: '🏊' };
 
+const MOCK_SESSIONS = [
+  {
+    _id: 'seed_1',
+    title: 'Sunday Morning Football 5v5',
+    sport_name: 'Football',
+    location: 'Casablanca',
+    date: '2026-08-15',
+    time: '09:00',
+    level: 'Intermediate',
+    maxParticipants: 10,
+    participants: ['u1', 'u2', 'u3', 'u4', 'u5', 'u6'],
+    createdBy: 'seed_host_1',
+    creatorName: 'Youssef Alami',
+    desc: 'Friendly 5v5 match at City Foot. Bring turf shoes!'
+  },
+  {
+    _id: 'seed_2',
+    title: 'Sunrise Beach Run & Cardio',
+    sport_name: 'Running',
+    location: 'Rabat',
+    date: '2026-08-16',
+    time: '07:30',
+    level: 'All levels',
+    maxParticipants: 15,
+    participants: ['u1', 'u2', 'u3', 'u4'],
+    createdBy: 'seed_host_2',
+    creatorName: 'Leila Amrani',
+    desc: '10km coastal jog followed by core stretch.'
+  },
+  {
+    _id: 'seed_3',
+    title: 'Outdoor Tennis Singles / Doubles',
+    sport_name: 'Tennis',
+    location: 'Casablanca',
+    date: '2026-08-17',
+    time: '18:00',
+    level: 'Advanced',
+    maxParticipants: 4,
+    participants: ['u1', 'u2'],
+    createdBy: 'seed_host_3',
+    creatorName: 'Sara Mansouri',
+    desc: 'Looking for solid rally partners and competitive sets.'
+  },
+  {
+    _id: 'seed_4',
+    title: '3v3 Street Basketball Shootout',
+    sport_name: 'Basketball',
+    location: 'Marrakech',
+    date: '2026-08-18',
+    time: '19:00',
+    level: 'Intermediate',
+    maxParticipants: 6,
+    participants: ['u1', 'u2', 'u3'],
+    createdBy: 'seed_host_4',
+    creatorName: 'Omar Khalil',
+    desc: 'Fast-paced half-court basketball under the lights.'
+  },
+  {
+    _id: 'seed_5',
+    title: 'Beginners Sparring & Mitt Work',
+    sport_name: 'Boxing',
+    location: 'Tanger',
+    date: '2026-08-19',
+    time: '17:00',
+    level: 'Beginner',
+    maxParticipants: 8,
+    participants: ['u1', 'u2', 'u3', 'u4', 'u5'],
+    createdBy: 'seed_host_5',
+    creatorName: 'Hassan Moussaoui',
+    desc: 'Technical boxing workout, pad drills, and safe light sparring.'
+  }
+];
+
 export default function Sessions() {
   const { user } = useAuth();
-  const [sessions, setSessions] = useState([]);
+  const [sessions, setSessions] = useState(MOCK_SESSIONS);
   const [search, setSearch] = useState('');
   const [sport, setSport] = useState('All');
   const [level, setLevel] = useState('All');
@@ -19,7 +92,7 @@ export default function Sessions() {
 
   useEffect(() => {
     sessionService.getSessions().then(res => {
-      if (res?.data?.length) setSessions(res.data);
+      if (res?.data?.length) setSessions([...res.data, ...MOCK_SESSIONS]);
     }).catch(() => {});
   }, []);
 

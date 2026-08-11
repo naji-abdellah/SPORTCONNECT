@@ -33,28 +33,28 @@ export default function Partners() {
     api.get('/users').then(res => {
       const users = res && res.data && res.data.users;
       const currentUid = localStorage.getItem('sc_uid');
-      if (users && users.length) {
+      if (users && users.length > 1) {
         const realUsers = users
           .filter(u => u.uid !== currentUid)
           .map((u, i) => ({
             id: 'real_' + (u.uid || i),
-            name: u.nom || 'Unknown Athlete',
+            name: u.nom || u.displayName || 'Unknown Athlete',
             sport: u.sportPrefere || 'Football',
             level: u.niveau || 'Beginner',
             city: u.localisation || 'Casablanca',
             age: u.age || 22,
-            score: Math.floor(70 + Math.random() * 25),
-            avatar: (u.nom || 'U')[0].toUpperCase(),
+            score: Math.floor(75 + Math.random() * 20),
+            avatar: (u.nom || u.displayName || 'U')[0].toUpperCase(),
             color: COLORS[i % COLORS.length],
-            sessions: u.sessions || 0,
+            sessions: u.sessions || Math.floor(10 + Math.random() * 50),
             bio: u.bio || 'SportConnect member.',
           }));
-        setPartners(realUsers);
+        setPartners([...realUsers, ...MOCK_PARTNERS]);
       } else {
-        setPartners([]);
+        setPartners(MOCK_PARTNERS);
       }
     }).catch(() => {
-      setPartners([]);
+      setPartners(MOCK_PARTNERS);
     });
   }, []);
 
