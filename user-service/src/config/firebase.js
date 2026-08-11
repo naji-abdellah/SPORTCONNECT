@@ -7,10 +7,15 @@ const admin = require('firebase-admin');
 
 let serviceAccount;
 try {
-  serviceAccount = require('../../serviceAccountKey.json');
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    serviceAccount = typeof process.env.FIREBASE_SERVICE_ACCOUNT === 'string'
+      ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+      : process.env.FIREBASE_SERVICE_ACCOUNT;
+  } else {
+    serviceAccount = require('../../serviceAccountKey.json');
+  }
 } catch (e) {
-  console.error('❌ serviceAccountKey.json introuvable dans user-service !');
-  console.error('   → Copie le fichier depuis auth-service/serviceAccountKey.json');
+  console.error('❌ serviceAccountKey.json introuvable dans user-service !', e.message);
   process.exit(1);
 }
 

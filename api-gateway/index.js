@@ -11,11 +11,16 @@ app.use(cors());
 // Parsing it here consumes the stream, causing "request aborted" in the target service.
 
 // ── Service URLs (resolved via Docker internal DNS) ──
-const AUTH_URL    = process.env.AUTH_SERVICE_URL    || 'http://auth-service:3001';
-const USER_URL    = process.env.USER_SERVICE_URL    || 'http://user-service:3002';
-const SESSION_URL = process.env.SESSION_SERVICE_URL || 'http://session-service:5002';
-const MATCH_URL   = process.env.MATCH_SERVICE_URL   || 'http://matchmaking-service:8083';
-const PERF_URL    = process.env.PERF_SERVICE_URL    || 'http://performance-service:8084';
+const formatUrl = (urlStr, fallback) => {
+  if (!urlStr) return fallback;
+  return urlStr.startsWith('http://') || urlStr.startsWith('https://') ? urlStr : `http://${urlStr}`;
+};
+
+const AUTH_URL    = formatUrl(process.env.AUTH_SERVICE_URL,    'http://auth-service:3001');
+const USER_URL    = formatUrl(process.env.USER_SERVICE_URL,    'http://user-service:3002');
+const SESSION_URL = formatUrl(process.env.SESSION_SERVICE_URL, 'http://session-service:5002');
+const MATCH_URL   = formatUrl(process.env.MATCH_SERVICE_URL,   'http://matchmaking-service:8083');
+const PERF_URL    = formatUrl(process.env.PERF_SERVICE_URL,    'http://performance-service:8084');
 
 const proxy = (target, pathRewrite) =>
   createProxyMiddleware({

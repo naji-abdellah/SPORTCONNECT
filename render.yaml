@@ -1,0 +1,61 @@
+services:
+  # ── 1. API Gateway ──
+  - type: web
+    name: sportconnect-api-gateway
+    env: node
+    rootDir: api-gateway
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: AUTH_SERVICE_URL
+        fromService:
+          type: web
+          name: sportconnect-auth-service
+          property: hostport
+      - key: USER_SERVICE_URL
+        fromService:
+          type: web
+          name: sportconnect-user-service
+          property: hostport
+      - key: SESSION_SERVICE_URL
+        fromService:
+          type: web
+          name: sportconnect-session-service
+          property: hostport
+
+  # ── 2. Auth Service ──
+  - type: web
+    name: sportconnect-auth-service
+    env: node
+    rootDir: auth-service
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: FIREBASE_API_KEY
+        value: AIzaSyAtwyeEZkREsUw0UMXk5vLTF6vvfhDwh5I
+      - key: USER_SERVICE_URL
+        fromService:
+          type: web
+          name: sportconnect-user-service
+          property: hostport
+
+  # ── 3. User Service ──
+  - type: web
+    name: sportconnect-user-service
+    env: node
+    rootDir: user-service
+    buildCommand: npm install
+    startCommand: node server.js
+
+  # ── 4. Session Service ──
+  - type: web
+    name: sportconnect-session-service
+    env: node
+    rootDir: session-service
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGO_URI
+        value: mongodb+srv://najiabdellahcp_db_user:6A7T8i7vbRr1zVGX@cluster0.o9nwu9c.mongodb.net/sportconnect_sessions?retryWrites=true&w=majority
